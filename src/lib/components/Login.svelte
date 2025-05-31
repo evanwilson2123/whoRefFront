@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import { user, login, signup, logout } from '$lib/firebase';
+  import { user, login, signup, logout, getFirebaseUid, getIdToken } from '$lib/firebase';
   import { writable } from 'svelte/store';
   import type { FirebaseError } from 'firebase/app';
   import { goto } from '$app/navigation';
@@ -37,7 +37,7 @@
       }
       error.set(null);
       if (userId) {
-            goto(`/dashboard/${userId}`);
+            goto(`/dashboard`);
       }
     } catch (e) {
       error.set((e as FirebaseError).message);
@@ -47,13 +47,18 @@
   async function handleSignup() {
     try {
       await signup(email, password);
+      const firebaseUid = getFirebaseUid();
+      if (!firebaseUid) {
+        error.set("Failed to read Firebase UID");
+        return;
+      }
       try {
         const response = await fetch('http://localhost:8080/user', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-                  body: JSON.stringify({ email: email }),
+                  body: JSON.stringify({ email: email, firebaseUid: firebaseUid }),
         });
         if (!response.ok) {
             console.error(error);
@@ -73,8 +78,9 @@
       }
       error.set(null);
       if (userId) {
-        goto(`/dashboard/${userId}`);
+        goto(`/dashboard`);
       }
+          
     } catch (e) {
       error.set((e as FirebaseError).message);
     }
@@ -89,6 +95,7 @@
 <section class="flex flex-col items-center text-center px-6 py-24 bg-white min-h-screen w-full">
   {#if $user}
     <!-- Already signed in -->
+    {window.location.href = "/dashboard"}
     <p class="text-gray-800 mb-6">✅ Signed in as {$user.email}</p>
     <button
       on:click={handleLogout}

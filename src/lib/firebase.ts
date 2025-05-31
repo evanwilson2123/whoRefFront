@@ -39,3 +39,13 @@ export const signup = (email: string, pw: string) =>
     createUserWithEmailAndPassword(auth, email, pw);
 
 export const logout = () => signOut(auth);
+
+export function getFirebaseUid(): string | null {
+    return auth.currentUser?.uid ?? null;
+}
+
+export async function getIdToken(): Promise<string> {
+    const fbUser = auth.currentUser;
+    if (!fbUser) throw new Error("No firebase user logged in");
+    return fbUser.getIdToken(true);
+}

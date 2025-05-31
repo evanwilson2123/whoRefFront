@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { getIdToken } from "$lib/firebase";
   import { writable } from "svelte/store";
@@ -23,14 +22,14 @@
         throw new Error("Unable to retrieve ID token");
       }
 
-      // 2) Send POST /sites with JSON body { name, url }
-      const response = await fetch(`${import.meta.env.VITE_BASE_API}/sites`, {
+      // 2) Send POST /site with JSON body { name, url }
+      const response = await fetch(`${import.meta.env.VITE_BASE_API}/site`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${fbUserToken}`
+          Authorization: `Bearer ${fbUserToken}`,
         },
-        body: JSON.stringify({ name, url })
+        body: JSON.stringify({ name, url }),
       });
 
       if (response.status === 409) {
@@ -46,7 +45,7 @@
 
       // 3) On success, extract the returned API key and show modal
       const data = await response.json();
-      apiKey = data.key;
+      apiKey = data.key; // “key” is the UUID from your Go handler
       showModal = true;
 
       // Clear form inputs
@@ -61,9 +60,14 @@
     showModal = false;
     goto("/dashboard");
   }
+
+  // 4) Build the exact <script> snippet, but break up "<script>" so Svelte doesn't parse it
+  $: snippet = apiKey
+    ? "<" + `script src="https://whorefback.onrender.com/tracker.js?site-key=${apiKey}" defer></` + "script>"
+    : "";
 </script>
 
-<section class="min-h-screen bg-gray-50 flex items-start justify-center py-12">
+<section class="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4 sm:px-6 lg:px-8">
   <form
     on:submit={handleAddSite}
     class="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 space-y-6"
@@ -109,14 +113,13 @@
   {#if showModal}
     <!-- Modal Overlay -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full mx-4 p-6 space-y-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-4 p-6 space-y-4">
         <h3 class="text-2xl font-bold text-gray-900">Site Added!</h3>
         <p class="text-gray-700">
-          Copy and paste the following script tag into your site's HTML:
+          Copy and paste the following script tag into your site’s HTML:
         </p>
         <pre class="bg-gray-100 p-4 rounded text-sm font-mono whitespace-pre-wrap break-words">
-&lt;script src="http://localhost:8080/tracker.js"
-  data-key="{apiKey}"&gt;&lt;/script&gt;
+{snippet}
         </pre>
         <p class="text-gray-700">
           Copy it and, if you need further instructions, visit

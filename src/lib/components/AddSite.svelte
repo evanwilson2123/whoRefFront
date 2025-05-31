@@ -24,7 +24,7 @@
       }
 
       // 2) Send POST /sites with JSON body { name, url }
-      const response = await fetch("http://localhost:8080/sites", {
+      const response = await fetch(`${import.meta.env.VITE_BASE_API}/sites`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

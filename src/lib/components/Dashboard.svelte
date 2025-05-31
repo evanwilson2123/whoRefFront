@@ -10,6 +10,7 @@
   const error = writable<string | null>(null);
   let loading = true;
 
+  console.log(import.meta.env.VITE_BASE_API);
   // 1) When component mounts, wait for Firebase user, then fetch /dash
   onMount(() => {
     const unsubscribe = user.subscribe(async (fbUser) => {
@@ -17,7 +18,7 @@
 
       try {
         const token = await getIdToken();
-        const res = await fetch("http://localhost:8080/dash", {
+        const res = await fetch(`${import.meta.env.VITE_BASE_API}/dash`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,

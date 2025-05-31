@@ -2,12 +2,8 @@
 <script lang="ts">
   import Login from '$lib/components/Login.svelte';
   import { user } from '$lib/firebase';
-  import { goto } from '$app/navigation';
 
-  // If they’re already signed in, send them to the dashboard immediately
-  $: if ($user) {
-    goto('/dashboard');
-  }
+
 </script>
 
 <main class="min-h-screen bg-gray-50 flex flex-col">

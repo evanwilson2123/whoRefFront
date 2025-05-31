@@ -11,13 +11,34 @@
   // form fields & error
   let email = '';
   let password = '';
+  let userId = '';
   const error = writable<string | null>(null);
 
   async function handleLogin() {
     try {
       await login(email, password);
+      try {
+        const response = await fetch('http://localhost:8080/login', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: email }),
+        });
+        if (!response.ok) {
+            error.set("Failed to login");
+            return;
+        }
+        const data = await response.json();
+        userId = data.id;
+      } catch (error: any) {
+        error.set("Login Failed");
+        return;
+      }
       error.set(null);
-      goto('/dashboard');
+      if (userId) {
+            goto(`/dashboard/${userId}`);
+      }
     } catch (e) {
       error.set((e as FirebaseError).message);
     }
@@ -26,8 +47,34 @@
   async function handleSignup() {
     try {
       await signup(email, password);
+      try {
+        const response = await fetch('http://localhost:8080/user', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+                  body: JSON.stringify({ email: email }),
+        });
+        if (!response.ok) {
+            console.error(error);
+            error.set("Failed to create user");
+            return;
+        }
+        const data = await response.json();
+        if (!data.id) {
+                  error.set("ID undefined")
+                  return
+        } 
+        userId = data.id;
+        console.log(userId)
+      } catch (error: any) {
+        console.error(error);
+        error.set("Failed to create user")
+      }
       error.set(null);
-      goto('/dashboard');
+      if (userId) {
+        goto(`/dashboard/${userId}`);
+      }
     } catch (e) {
       error.set((e as FirebaseError).message);
     }

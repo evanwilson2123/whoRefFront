@@ -18,7 +18,7 @@
     try {
       await login(email, password);
       try {
-        const response = await fetch(`${import.meta.env.BASE_URL}/login`, {
+        const response = await fetch(`${import.meta.env.VITE_BASE_API}/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -53,7 +53,7 @@
         return;
       }
       try {
-        const response = await fetch('http://localhost:8080/user', {
+        const response = await fetch(`${import.meta.env.VITE_BASE_API}/user`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -96,6 +96,8 @@
                   <p class="text-sm text-gray-500">⏱ {r.timestamp}</p>
                   <p class="text-gray-800">
                     <strong>Site Key:</strong> {r.site}
+                    <strong>URL:</strong> {r.url}
+                    <strong>Path:</strong> {r.path}
                   </p>
                 </li>
               {/each}
